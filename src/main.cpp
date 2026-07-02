@@ -1,6 +1,14 @@
+#include "Networking.hpp"
+#include <cstddef>
+#include <cstdint>
 #include <iostream>
 int main() {
-    std::cout<< "Hello world!" << std::endl;
+    std::cout << "Please input the destination ip:" << std::endl;
+
+    std::string destIPText;
+    std::cin >> destIPText;
+
+    Networking networking(destIPText);
 
     return 0;
 }
