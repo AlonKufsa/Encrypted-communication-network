@@ -7,8 +7,8 @@
 Messanger::Messanger(const std::string& usernameValue, Networking& networkingValue): username(usernameValue), networking(networkingValue) {
     
 
-    networking.connect();
     networking.listen();
+    networking.connect();
 
     inputThread = std::thread(&Messanger::listenForInput, this);
 }
