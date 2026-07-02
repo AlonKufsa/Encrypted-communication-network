@@ -5,6 +5,8 @@
 #include <thread>
 
 Messanger::Messanger(const std::string& usernameValue, Networking& networkingValue): username(usernameValue), networking(networkingValue) {
+    
+
     networking.connect();
     networking.listen();
 

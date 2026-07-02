@@ -54,8 +54,6 @@ void Networking::connect()
         std::cout << "[Networking]: Attempting to connect to peer..." << std::endl;
         this->_socket.connect();
         std::cout << "[Networking]: Connected to peer successfully!" << std::endl;
-
-        this->_receiveThread = std::thread(&Networking::receiveLoop, this, std::ref(_socket));
     }
 
     catch (const std::exception& e)
