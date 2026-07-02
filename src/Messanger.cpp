@@ -1,18 +1,19 @@
+#include "Networking.hpp"
 #include <Messanger.hpp>
 #include <iostream>
 
-Messanger::Messanger() {
+Messanger::Messanger(const std::string& usernameValue, Networking& networkingValue): username(usernameValue), networking(networkingValue) {
 
 }
 
-void Messanger::displayText(const std::string text) {
+void Messanger::displayText(const std::string& text) {
     std::cout << text << std::endl;
 }
 
-void Messanger::displayMessage(const std::string senderUsername, const std::string message) {
+void Messanger::displayMessage(const std::string& senderUsername, const std::string& message) {
     displayText(senderUsername + ": " + message);
 }
 
-void Messanger::sendMessage(const std::string message) {
-    
+void Messanger::sendMessage(const std::string& message) {
+
 }
