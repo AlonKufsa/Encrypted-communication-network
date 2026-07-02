@@ -1,6 +1,4 @@
 #include "Networking.hpp"
-#include <cstddef>
-#include <cstdint>
 #include <iostream>
 int main() {
     std::cout << "Please input the destination ip:" << std::endl;
