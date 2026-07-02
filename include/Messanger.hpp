@@ -18,5 +18,6 @@ private:
 
     void listenForInput();
 public:
-    Messanger(const std::string& username, Networking& networking);
+    Messanger(const std::string& username, Networking& networking, const bool isServer);
+    ~Messanger();
 };
