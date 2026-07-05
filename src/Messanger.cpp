@@ -6,16 +6,12 @@
 
 Messanger::Messanger(const std::string& usernameValue, Networking& networkingValue, const bool isServer) : username(usernameValue), networking(networkingValue) 
 {
-    isServer ? networking.listen() : networking.connect();
-    inputThread = std::thread(&Messanger::listenForInput, this);
-}
+    networking.setOnMessageReceived([this](const std::string& msg) {
+        std::cout << "\n" << msg << std::endl;
+        std::cout << "> " << std::flush;
+    });
 
-Messanger::~Messanger() 
-{
-    if (inputThread.joinable()) 
-    {
-        inputThread.join();
-    }
+    isServer ? networking.listen() : networking.connect();
 }
 
 void Messanger::displayText(const std::string& text) {
@@ -26,30 +22,22 @@ void Messanger::displayMessage(const std::string& senderUsername, const std::str
     displayText(senderUsername + ": " + message);
 }
 
-void Messanger::sendMessage(const std::string& message) {
-    networking.send(username + ": " + message);
-}
+void Messanger::startChatLoop() {
+    const std::string STOP_CHATTING = "exit";
 
-void Messanger::listenForInput() {
     while (true) {
-        try {
-            std::string message;
-            std::cout << "> " << std::flush;
-            
-            std::getline(std::cin, message); 
-            
-            if (message == "exit") break;
-
-            if (!message.empty()) 
-            {
-                sendMessage(message);
-            }
-        } 
-
-        catch(const std::exception& e) 
-        {
-            std::cerr << "[Input error]: " << e.what() << std::endl;
+        std::string message;
+        std::cout << "> " << std::flush;
+        std::getline(std::cin, message);
+        
+        if (message == STOP_CHATTING) {
             break;
+        }
+
+        if (!message.empty()) {
+            std::string formattedMessage = username + ": " + message;
+            networking.send(formattedMessage);
+            displayText(formattedMessage);
         }
     }
 }
