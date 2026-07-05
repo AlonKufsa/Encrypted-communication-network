@@ -2,6 +2,7 @@
 
 #include <kissnet/kissnet.hpp>
 #include <string>
+#include <functional>
 #include <cstddef>
 #include <thread>
 
@@ -21,7 +22,10 @@ private:
     // Support Methods - 
     bool isValidIP(const std::string& endpoint) const;
     bool isValidPort(const uint16_t port) const;
-    void receiveLoop(kissnet::tcp_socket& activeSocket);
+    void receiveLoop();
+
+    // Callbacks -
+    std::function<void(const std::string&)> _onMessageReceived = nullptr;
 
 public:
     // Constructor & Destructor - 
@@ -32,4 +36,7 @@ public:
     void listen();
     void connect();
     void send(const std::string& message);
+
+    // Callbacks - 
+    void setOnMessageReceived(std::function<void(const std::string&)> callback);
 };

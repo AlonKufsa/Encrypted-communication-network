@@ -20,6 +20,8 @@ Networking::Networking(const std::string& endpoint, const uint16_t port) : _port
 
 Networking::~Networking()
 {
+    this->_socket.close();
+    
     if (this->_receiveThread.joinable())
     {
         this->_receiveThread.join(); 
@@ -32,15 +34,15 @@ void Networking::listen()
     {
         this->_socket.bind();
         this->_socket.listen();
-        std::cout << "[Networking]:  Listening on port " << _port << ". Waiting for peer..." << std::endl;
+        std::cout << "[Networking]: Listening on port " << _port << ". Waiting for peer..." << std::endl;
 
         auto clientSocket = this->_socket.accept();
         std::cout << "[Networking]: Peer connected successfully!" << std::endl;
 
         this->_socket = std::move(clientSocket);
-        this->_receiveThread = std::thread(&Networking::receiveLoop, this, std::ref(this->_socket));
+        this->_receiveThread = std::thread(&Networking::receiveLoop, this);
     }
-
+    
     catch (const std::exception& e)
     {
         throw std::runtime_error(std::string("[Listening Error]: ") + e.what());
@@ -54,6 +56,9 @@ void Networking::connect()
         std::cout << "[Networking]: Attempting to connect to peer..." << std::endl;
         this->_socket.connect();
         std::cout << "[Networking]: Connected to peer successfully!" << std::endl;
+
+        // Receive incoming messages from the other peer
+        this->_receiveThread = std::thread(&Networking::receiveLoop, this);
     }
 
     catch (const std::exception& e)
@@ -88,11 +93,11 @@ bool Networking::isValidPort(const uint16_t port) const
     return (port >= MIN_PORT && port <= MAX_PORT);
 }
 
-void Networking::receiveLoop(kissnet::tcp_socket& activeSocket)
+void Networking::receiveLoop()
 {
     while (true)
     {
-        auto [bytes_received, status] = activeSocket.recv(_buffer);
+        auto [bytes_received, status] = this->_socket.recv(this->_buffer);
 
         if ((bytes_received == 0) || (status != kissnet::socket_status::valid))
         {
@@ -100,9 +105,17 @@ void Networking::receiveLoop(kissnet::tcp_socket& activeSocket)
             break;
         }
 
-        std::string received_msg(reinterpret_cast<const char*>(_buffer.data()), bytes_received);
-        
-        std::cout << "\n[Peer]: " << received_msg << std::endl;
-        std::cout << "> " << std::flush;
+        std::string received_msg(reinterpret_cast<const char*>(this->_buffer.data()), bytes_received);
+
+        if (this->_onMessageReceived) 
+        {
+            this->_onMessageReceived(received_msg);
+        }
     }
+}
+
+// Callback Implementation -
+void Networking::setOnMessageReceived(std::function<void(const std::string&)> callback)
+{
+    this->_onMessageReceived = callback;
 }
